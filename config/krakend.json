@@ -7,24 +7,81 @@
   "port": 8080,
   "endpoints": [
     {
-      "endpoint": "/payments-api/payments",
-      "method": "POST", 
+      "endpoint": "/store-manager-api/test/slow/{delay}",
+      "method": "GET",
       "backend": [
         {
-          "url_pattern": "/payments",
-          "host": ["http://payments_api:5009"],
+          "url_pattern": "/test/slow/{delay}",
+          "host": ["http://store_manager:5000"],
           "timeout": "5s"
         }
       ]
     },
     {
-      "endpoint": "/payments-api/payments/process/{payment_id}",
+      "endpoint": "/payments-api/payments",
+      "method": "POST",
+      "output_encoding" : "no-op", 
+      "backend": [
+        {
+          "url_pattern": "/payments",
+          "host": ["http://payments_api:5009"],
+	  "encoding": "no-op",
+          "timeout": "5s"
+        }
+      ]
+    },
+    {
+      "endpoint": "/payments-api/process/{payment_id}",
       "method": "POST", 
+      "output_encoding": "no-op",
+      "extra_config": {
+        "qos/http-cache": {
+          "shared": false
+        }
+      }, 
       "backend": [
         {
           "url_pattern": "/payments/process/{payment_id}",
           "host": ["http://payments_api:5009"],
+	  "encoding": "no-op",
           "timeout": "5s"
+        }
+      ]
+    },
+    {
+      "endpoint": "/payments-api/payments/{payment_id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/payments/{payment_id}",
+          "host": ["http://payments_api:5009"],
+          "encoding": "no-op",
+          "timeout": "5s"
+        }
+      ]
+    },
+    {
+      "endpoint": "/store-manager-api/orders",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/orders",
+          "host": ["http://store_manager:5000"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/store-manager-api/orders",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/orders",
+          "host": ["http://store_manager:5000"],
+          "encoding": "no-op"
         }
       ]
     }

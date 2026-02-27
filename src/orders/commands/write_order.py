@@ -53,7 +53,7 @@ def add_order(user_id: int, items: list):
 
         order_id = new_order.id
 
-        new_order.payment_link = request_payment_link(new_order.id, total_amount, user_id)
+        new_order.payment_link = str(request_payment_link(new_order.id, total_amount, user_id))
         session.flush()  
         
         for item in order_items:
@@ -105,21 +105,32 @@ def modify_order(order_id: int, is_paid: bool):
         session.close()
 
 def request_payment_link(order_id, total_amount, user_id):
-    payment_id = 0
     payment_transaction = {
         "user_id": user_id,
         "order_id": order_id,
         "total_amount": total_amount
     }
 
-    # TODO: Requête à POST /payments
-    print("")
-    response_from_payment_service = {}
+    url = "http://api-gateway:8080/payments-api/payments"
 
-    if True: # if response.ok
-        print(f"ID paiement: {payment_id}")
+    response = requests.post(
+        url,
+        json=payment_transaction,
+        headers={"Content-Type": "application/json"},
+        timeout=5
+    )
 
-    return f"http://api-gateway:8080/payments-api/payments/process/{payment_id}" 
+    if response.status_code not in (200, 201):
+        raise RuntimeError(f"Payment service error {response.status_code}: {response.text}")
+
+    data = response.json()
+    payment_id = data.get("payment_id") or data.get("id")
+
+    if not payment_id:
+        raise ValueError(f"Réponse inattendue du service de paiement: {data}")
+
+    logger.debug(f"Paiement créé. payment_id={payment_id}")
+    return payment_id
 
 def delete_order(order_id: int):
     """Delete order in MySQL, keep Redis in sync"""

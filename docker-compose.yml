@@ -7,7 +7,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "5000:5000"
+      - "5005:5000"
     networks:
       - labo05-network
     depends_on:
@@ -57,8 +57,8 @@ services:
       MYSQL_PASSWORD: labo05
     networks:
       - labo05-network
-    ports:
-      - "3306:3306"
+    #ports:
+    # - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db-init:/docker-entrypoint-initdb.d
@@ -74,8 +74,8 @@ services:
     restart: unless-stopped
     networks:
       - labo05-network
-    ports:
-      - "6379:6379"
+    #ports:
+    #  - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 1m
